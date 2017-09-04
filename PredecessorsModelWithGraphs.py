@@ -1,3 +1,12 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# @Time    : 2017/9/3 10:39
+# @Author  : Colin
+# @Site    : https://github.com/DreamsFuture
+# @File    : PredecessorsModelWithGraphs.py
+# @Software: PyCharm Community Edition
+
+
 # -*- encoding: utf-8 -*-
 #为什么遇到bug总是很难察觉那里出问题了，自己在代码处理bug的问题上没有做什么工作，也就是raise方面没有做try...catch的工作
 from __future__ import division
@@ -9,14 +18,14 @@ from TraditionTheoreticalMethod import TraditionTheoreticalMethod
 from TraditionTheoreticalMethodNonIterate import TraditionTheoreticalMethodNonIterate
 import matplotlib.pyplot as plot
 from NewMethod import NewWayForModule
-from MultilayerStructureMethod import MultilayerStructureMethod
+from PredecessorsModel import PredecessorsModel
 import mpmath
 import numpy as np
 import math
 import time
 
-plot.rcParams['font.sans-serif']=['SimHei']
-plot.rcParams['axes.unicode_minus']=False
+
+
 class ParameterInitialization(object):  # class继承object类
 
     #初始化的时候numberOfLayers传过去是3，所以在另外一边会出现 out of index 的Error
@@ -29,15 +38,14 @@ class ParameterInitialization(object):  # class继承object类
                  mediRefractiveIndexMediumThickness = 250,
                  lowerRefractiveIndexMedium=1.457,
                  lowerRefractiveIndexMediumThickness=450,
-                 AuMetalRefractiveIndex=0.20811 + 5.0896j,
-                 AgMetalRefractiveIndex=0.19620 + 5.3347j,
-
+                 AuMetalRefractiveIndex=0.16172 + 3.21182j,
+                 AgMetalRefractiveIndex=0.05625 + 4.27603j,
                  metalThickness=50,
                  AuMetalThickness = 50,
                  AgMetalThickness =50,
                  aqueousSolutionRefractiveIndex=1.3321,
                  aqueousSolutionThickness=4 * 10 ** 2,
-                 wavelength=850,
+                 wavelength=632.8,
                  aqueousSolutionRefractiveIndex_1=1.33211,
                  incidentAngle=61.55):
 
@@ -51,7 +59,7 @@ class ParameterInitialization(object):  # class继承object类
 
         self.mediRefractiveIndex = mediRefractiveIndex
         self.mediRefractiveIndexMediumThickness = mediRefractiveIndexMediumThickness
-        self.PtMetalRefractiveIndex = 2.3389 + 4.2037j
+
         self.lowerRefractiveIndexMedium = lowerRefractiveIndexMedium
         self.lowerRefractiveIndexMediumThickness = lowerRefractiveIndexMediumThickness
 
@@ -88,7 +96,7 @@ class ParameterInitialization(object):  # class继承object类
                                                     incidentAngle=incidentAngle,
                                                     aqueousSolutionRefractiveIndex=aqueousSolutionRefractiveIndex,
                                                     aqueousSolutionThickness=aqueousSolutionThickness)
-        self.multilayerStructureMethod = MultilayerStructureMethod(numberOfLayers=numberOfLayers,
+        self.predecessorsModel = PredecessorsModel(numberOfLayers=numberOfLayers,
                                                     coupledPrismRefractiveIndex=coupledPrismRefractiveIndex,
                                                     coupledPrismThickness=coupledPrismThickness,
                                                     highRefractiveIndexMedium=highRefractiveIndexMedium,
@@ -135,15 +143,28 @@ class ParameterInitialization(object):  # class继承object类
                                                     incidentAngle=incidentAngle,
                                                     aqueousSolutionRefractiveIndex=aqueousSolutionRefractiveIndex,
                                                     aqueousSolutionThickness=aqueousSolutionThickness)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     def PlotGraph(self):
         new = False
-        multilayers =False
-        tradition = not  False
+        multilayers =not False
+        tradition =  False
         metalProperties =not False
         metalThickness =False
         lightWavelengthProperties =  False
         sensitivityIntensity =False
-        theDifferentialRelationBetweenReflectionAndIntensity = False
         old_settings = np.seterr(all='warn', over='raise')
         #传统方法层数为3层，总共耦合层、金属层、检测物质层
         if tradition:
@@ -154,8 +175,7 @@ class ParameterInitialization(object):  # class继承object类
                 legendLabel = []
                 halfFullWidth = []
                 maximumSlopeRate = []
-                sensitivity = []
-                #-----------------------------------------------------------------------------------
+
                 self.traditionTheoreticalMethodNonIterate.numberOfLayers = 3
                 self.traditionTheoreticalMethodNonIterate.metalThickness = 56.8
                 self.traditionTheoreticalMethodNonIterate.metalRefractiveIndex = self.AgMetalRefractiveIndex
@@ -172,9 +192,9 @@ class ParameterInitialization(object):  # class继承object类
 
                 halfFullWidth.append(self.HalfFullWidth(intensity__x1, intensity__y1))
                 maximumSlopeRate.append(self.MaximumSlopeRate(intensity__x1, intensity__y1))
-                sensitivity.append(self.SensitivityIntensity(maximumSlopeRate[0][1],self.traditionTheoreticalMethodNonIterate))
+
                 legendLabel.append("Ag:%s" % self.AgMetalThickness)
-                #-------------------------------------------------------------------------------------
+
                 self.traditionTheoreticalMethodNonIterate.metalThickness = 56.8
                 self.traditionTheoreticalMethodNonIterate.metalRefractiveIndex = self.AuMetalRefractiveIndex
                 intensity_2_y, intensity_2_x,dep = self.Result(self.traditionTheoreticalMethodNonIterate)
@@ -185,45 +205,22 @@ class ParameterInitialization(object):  # class继承object类
 
                 halfFullWidth.append(self.HalfFullWidth(intensity__x2, intensity__y2))
                 maximumSlopeRate.append(self.MaximumSlopeRate(intensity__x2, intensity__y2))
-                sensitivity.append(self.SensitivityIntensity(maximumSlopeRate[0][1], self.traditionTheoreticalMethodNonIterate))
+
                 legendLabel.append("Au:%s" % self.AuMetalThickness)
-                #---------------------------------------------------------------------------------------------
-                self.traditionTheoreticalMethodNonIterate.metalThickness = 56.8
-                self.traditionTheoreticalMethodNonIterate.metalRefractiveIndex = self.PtMetalRefractiveIndex
-                intensity_3_y, intensity_3_x, dep = self.Result(self.traditionTheoreticalMethodNonIterate)
 
-                intensity__y3 = intensity_3_y[x65:]
-                intensity__x3 = intensity_3_x[x65:]
-
-                halfFullWidth.append(self.HalfFullWidth(intensity__x3, intensity__y3))
-                maximumSlopeRate.append(self.MaximumSlopeRate(intensity__x3, intensity__y3))
-                sensitivity.append(self.SensitivityIntensity(maximumSlopeRate[0][1], self.traditionTheoreticalMethodNonIterate))
-                legendLabel.append("Pt:%s" % self.AuMetalThickness)
 
                 #pop函数是先进后出的模式，类似于栈的数据结构
-                print("\nmaximumSlopeRate(Pt最大斜率，最大斜率对应的角度):    ")
-                print(maximumSlopeRate.pop())
-                print("\nhalfFullWidth(Pt半峰宽值，半峰宽第一个值对应的横坐标角度值，半峰宽最后一个值对应的横坐标角度值,SPR角度):")
-                print(halfFullWidth.pop())
-                print("\nPt灵敏度：")
-                print(sensitivity.pop())
-                #----------------------------------------------------------------------------------------------------------------------
                 print("\nmaximumSlopeRate(Au最大斜率，最大斜率对应的角度):    ")
+                print(maximumSlopeRate.pop())
+                print("\nmaximumSlopeRate(Ag最大斜率，最大斜率对应的角度):    ")
                 print(maximumSlopeRate.pop())
                 print("\nhalfFullWidth(Au半峰宽值，半峰宽第一个值对应的横坐标角度值，半峰宽最后一个值对应的横坐标角度值,SPR角度):")
                 print(halfFullWidth.pop())
-                print("\nAu灵敏度：")
-                print(sensitivity.pop())
-                # ----------------------------------------------------------------------------------------------------------------------
                 print("\nhalfFullWidth(Ag半峰宽值，半峰宽第一个值对应的横坐标角度值，半峰宽最后一个值对应的横坐标角度值，SPR角度):")
                 print(halfFullWidth.pop())
-                print("\nmaximumSlopeRate(Ag最大斜率，最大斜率对应的角度):    ")
-                print(maximumSlopeRate.pop())
-                print("\nAg灵敏度：")
-                print(sensitivity.pop())
                 #intensity_1_y, intensity_2_y = self.NormlizedArray(intensity_1_y,intensity_2_y)
-                # ----------------------------------------------------------------------------------------------------------------------
-                self.PlotGraphs(xylabel,legendLabel,intensity_1_x,intensity_1_y,  intensity_2_y,intensity_3_y)
+
+                self.PlotGraphs(xylabel,legendLabel,intensity_1_x,intensity_1_y,  intensity_2_y)
             #同一个金属，但是厚度不同导致的影响
             elif metalThickness:
                 legendLabel = []
@@ -405,9 +402,9 @@ class ParameterInitialization(object):  # class继承object类
             self.PlotGraphs(xylabel, legendLabel, intensity_1_x, intensity_1_y, intensity_2_y, intensity_3_y)
         elif (multilayers):
 
-            domain = [403.74474588394355, 265.89728449474825, 130.4440049633953, 21.92231446249388, 11, 632.8]
+            domain =[358,107,440,15, 9, 632.8]
             #报错，显示的结果值大于1
-            print("Multilayer way for stimulation:\n")
+            print(" Processors  multilayers mode for stimulation:\n")
             legendLabel = []
             halfFullWidth = []
             maximumSlopeRate = []
@@ -415,13 +412,15 @@ class ParameterInitialization(object):  # class继承object类
             xylabel = ["Angle(Degree)","Intensity","SPR Curve"]
 
             #新方法：多层结构
-            self.multilayerStructureMethod.numberOfLayers = domain[4]
-            self.multilayerStructureMethod.metalThickness = domain[3]
-            self.multilayerStructureMethod.metalRefractiveIndex = self.AuMetalRefractiveIndex
-            self.multilayerStructureMethod.lowerRefractiveIndexMediumThickness = domain[0]
-            self.multilayerStructureMethod.mediRefractiveIndexMediumThickness = domain[1]
-            self.multilayerStructureMethod.highRefractiveIndexMediumThickness = domain[2]
-            intensity_1_y, intensity_1_x,dep = self.Result(self.multilayerStructureMethod)
+            self.predecessorsModel.lowerRefractiveIndexMediumThickness = domain[0]
+            self.predecessorsModel.highRefractiveIndexMediumThickness = domain[1]
+            self.predecessorsModel.coupledPrismThickness = domain[2]
+            self.predecessorsModel.metalThickness = domain[3]
+            self.predecessorsModel.numberOfLayers = int(domain[4])
+            self.predecessorsModel.wavelength = domain[5]
+            self.predecessorsModel.aqueousSolutionThickness = 20000
+            self.predecessorsModel.metalRefractiveIndex = self.AuMetalRefractiveIndex
+            intensity_1_y, intensity_1_x,dep = self.Result(self.predecessorsModel)
 
             #65°对应的数组索引为array_x.index(65),截取数组的一部分，也即切片
             x65 = 0
@@ -436,7 +435,7 @@ class ParameterInitialization(object):  # class继承object类
 
             halfFullWidth.append(self.HalfFullWidth(intensity_x, intensity_y))
             maximumSlopeRate.append(self.MaximumSlopeRate(intensity_x, intensity_y))
-            SI = self.SensitivityIntensity(maximumSlopeRate[0][1],self.multilayerStructureMethod)
+            SI = self.SensitivityIntensity(maximumSlopeRate[0][1],self.predecessorsModel)
             print("灵敏度值SI:"+str(SI))
             legendLabel.append("Multilayer Au:%snm"%str(self.metalThickness))
 
@@ -447,73 +446,13 @@ class ParameterInitialization(object):  # class继承object类
             print("\nhalfFullWidth(Au半峰宽值，半峰宽第一个值对应的横坐标角度值，半峰宽最后一个值对应的横坐标角度值,SPR角度):")
             print(halfFullWidth.pop())
 
-            #for i in intensity_1_y:
-                #print(i)
-            #intensity_1_y, intensity_2_y= self.NormlizedArray(intensity_1_y, intensity_2_y)
             self.PlotGraphs(xylabel, legendLabel, intensity_1_x, intensity_1_y)
             xylabelfordep = ["Angle(Degree)","Detection depth","Detection Curve"]
             self.PlotGraphDep(xylabelfordep,intensity_1_x,dep)
-
-        elif theDifferentialRelationBetweenReflectionAndIntensity:
-            print("None Iteration and Tradition way for stimulation:\n")
-            # 金属折射率不同Ag=0.05625 + 4.27603j,Au=0.16172 + 3.21182j
-
-            xylabel = ["水溶液折射率", "Intensity", "光强在水溶液变化过程中，体现两层之间折射率的差值变化，光强的影响"]
-            legendLabel = []
-            halfFullWidth = []
-            maximumSlopeRate = []
-            SPRAngle = 67.75
-            self.traditionTheoreticalMethodNonIterate.numberOfLayers = 3
-            self.traditionTheoreticalMethodNonIterate.metalThickness = 56.8
-            self.traditionTheoreticalMethodNonIterate.metalRefractiveIndex = self.AgMetalRefractiveIndex
-            #intensity_1_y, intensity_1_x, dep = self.Result(self.traditionTheoreticalMethodNonIterate)
-            intensity_1_y, intensity_1_x = self.ReflectionResult(SPRAngle,self.traditionTheoreticalMethodNonIterate)
-
-            halfFullWidth.append(self.HalfFullWidth(intensity_1_x, intensity_1_y))
-            maximumSlopeRate.append(self.MaximumSlopeRate(intensity_1_x, intensity_1_y))
-
-            legendLabel.append("Ag:%s" % self.AgMetalThickness)
-
-
-            # pop函数是先进后出的模式，类似于栈的数据结构
-            print("\nmaximumSlopeRate(Au最大斜率，最大斜率对应的角度):    ")
-            print(maximumSlopeRate.pop())
-
-            print("\nhalfFullWidth(Au半峰宽值，半峰宽第一个值对应的横坐标角度值，半峰宽最后一个值对应的横坐标角度值,SPR角度):")
-            print(halfFullWidth.pop())
-
-            # intensity_1_y, intensity_2_y = self.NormlizedArray(intensity_1_y,intensity_2_y)
-
-            self.PlotGraphs(xylabel, legendLabel, intensity_1_x, intensity_1_y)
-
-
         else:
             print("else")
 
     def PlotGraphs(self,xylabel,legendLabel, *array):
-        if len(array) == 0:
-            print("There is no arrays input!")
-        else:
-            array1 = []
-            #提取输入的X，Y轴曲线
-            for i in array:
-                y = np.array(i)
-                array1.append(y)
-
-            #把所有的计算曲线信息都加入到同一个坐标轴里面
-            for i in range(len(array1)):
-                j = i+1
-                if(j <= len(array1)-1):
-                    plot.plot(array1[0], array1[j],label='%s'%legendLabel[i])
-            #把这个绘制好的坐标轴显示出来
-
-            plot.legend()
-            #plot.legend(loc='lower left', bbox_to_anchor=(65, 0.4))
-            plot.xlabel(xylabel[0])  # 默认为"Intensity"
-            plot.ylabel(xylabel[1])#默认为"Angle(Degree)"
-            plot.title(xylabel[2])#默认为"SPR Curve"
-            plot.show()
-    def PlotGraphsWithReflection(self,xylabel,legendLabel, *array):
         if len(array) == 0:
             print("There is no arrays input!")
         else:
@@ -565,27 +504,7 @@ class ParameterInitialization(object):  # class继承object类
 
         return intensity, x,dep
 
-    def ReflectionResult(self,SPRAngle,classVariable):
-        x = []
-        intensity = []
-        dep = []
-        classVariable.incidentAngle = SPRAngle * mpmath.pi / 180
-        for i in np.arange(1.0, 4.0, 0.1):
-            #入射角转化为弧度
-            #classVariable.incidentAngle = i
-            classVariable.aqueousSolutionRefractiveIndex = i
-            #计算模型的折射率信息
-            result,depResult = classVariable.ReflectedLightIntensity()
-            #返回的信息不能是Nan，否则一整个数组都是Nan
-            if math.isnan(result):
-                continue
-            intensity.append(result)
-            x.append(i)
-            dep.append(depResult)
-        #归一化处理
-        #intensity = self.NormlizedArray(intensity) 暂时不做归一化，目的就是把所有的内容合在一起归一化
 
-        return intensity, x
 
     #选取的半峰宽的基底为0-1，所以表示为0.5附近，但是得出Y-0.5<=0.01
     def HalfFullWidth(self,array_x,array_y):

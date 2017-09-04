@@ -50,7 +50,7 @@ class TraditionTheoreticalMethodNonIterate(object):
             if i == N - 1:
 
                 self.reflectedLight[i] = self.AdjacentReflectionCoefficient(i)
-            else:
+            elif(i != 0):
                 self.reflectedLight[i] = self.TraditionalModel(i)
         # 防止出现0作为指数底数
 
@@ -71,7 +71,7 @@ class TraditionTheoreticalMethodNonIterate(object):
         refractiveIndex_1 = self.TraditionalModelRefractiveIndex(i + 1)
         detectionDepth_0 = self.DetectionDepth(i)
         detectionDepth_1 = self.DetectionDepth(i + 1)
-        print(refractiveIndex_0,refractiveIndex_1,detectionDepth_0,detectionDepth_1)
+        #print(refractiveIndex_0,refractiveIndex_1,detectionDepth_0,detectionDepth_1)
 
         adjacentReflectionCoefficient = (
                                         refractiveIndex_1 ** 2 / detectionDepth_1 - refractiveIndex_0 ** 2 / detectionDepth_0) \
@@ -83,7 +83,7 @@ class TraditionTheoreticalMethodNonIterate(object):
 
         detectionDepth = (((2 * mpmath.pi / self.wavelength * self.TraditionalModelRefractiveIndex(
             i)) ** 2 - self.HorizontalWaveVector() ** 2) ** (1 / 2))
-        print(self.wavelength,self.HorizontalWaveVector())
+        #print(self.wavelength,self.HorizontalWaveVector())
         return detectionDepth
 
     def HorizontalWaveVector(self):
@@ -99,7 +99,8 @@ class TraditionTheoreticalMethodNonIterate(object):
         elif (i == 3):
             return self.aqueousSolutionRefractiveIndex
         else:
-            print("TraditionalModelRefractiveIndex: i is else number")
+            print("TraditionalModelRefractiveIndex: i is %i"%i)
+
             return 1
 
     def TraditionalModelThickness(self, i):
@@ -110,5 +111,5 @@ class TraditionTheoreticalMethodNonIterate(object):
         elif (i == 3):
             return self.aqueousSolutionThickness
         else:
-            print(" TraditionalModelThickness:  i is else data")
+            print(" TraditionalModelThickness:  i is %i"%i)
             return 1
